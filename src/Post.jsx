@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { DateTime } from "luxon";
 import Comment from './Comment';
@@ -12,19 +11,50 @@ function Post({ postId, title, text, updatedAt, comments, published }) {
             return "no date provided"
         }    
     }
-// TO DO: FIX! //
-    function PublishButton(published) {
-        if(published) {
-            console.log(published);
-            return <button>Unpublish?</button>
+
+    function PublishButton({published}) {
+        if(published === true) {
+            return <button onClick={onClickUnpublish}>Unpublish?</button>
         } else {
-            console.log(published);
-            return <button>Publish?</button>
+            return <button onClick={onClickPublish}>Publish?</button>
         }
     }
 
+    function onClickPublish() {
+        fetch(`http://localhost:3000/api/post/${postId}/update`, {
+            method: "POST", 
+            body: JSON.stringify({
+                title: title,
+                text: text,
+                published: true,
+            }),
+            headers: {
+                "Content-Type": "application/json;charset=utf-8",
+            },
+        }).then((res) => {
+            return res.json();
+        });
+    }
+
+    function onClickUnpublish() {
+        fetch(`http://localhost:3000/api/post/${postId}/update`, {
+            method: "POST", 
+            body: JSON.stringify({
+                title: title,
+                text: text,
+                published: false,
+            }),
+            headers: {
+                "Content-Type": "application/json;charset=utf-8",
+            },
+        }).then((res) => {
+            return res.json();
+        });
+        document.getElementById("singlePost").classList.add("unpublished");
+    }
+
     return (
-        <div className="singlePost">
+        <div id="singlePost">
             <div>
                 <h2 className='postTitle'>{title}  </h2>
                 <p className='publishedDate'>{`(published on ${formatDate(updatedAt)})`}</p>
@@ -54,6 +84,7 @@ Post.propTypes = {
     updatedAt: PropTypes.string,
     comments: PropTypes.array,
     postId: PropTypes.string,
+    published: PropTypes.bool,
 }
 
 export default Post;

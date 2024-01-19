@@ -13,10 +13,35 @@ function App() {
         return res.json();
       })
       .then((data) => {
+        console.log(data);
         setPublishedPosts(data.filter((post) => post.published === true));
         setUnpublishedPosts(data.filter((post) => post.published === false));
       });
   }, []);
+
+  /*
+  function handlePublishtoUnpublishChange (changedPost) {
+    setPublishedPosts(publishedPosts.filter out changedPost....);
+    setUnpublishedPosts([...unpublishedPosts, changedPost ]);
+  }
+
+  function handleUnpublishtoPublishChange (changedPost) {
+    setUnpublishedPosts(unpublishedPosts.filter out changed post....);
+    setpublishedPosts([...publishedPosts, changedPost ]);
+  }
+
+  function handleDeletepublishedPost (deletedPost) {
+    setPublishedPosts(publishedPosts.filter out deletedPost....);
+  }
+  
+  function handleDeleteunpublishedPost (deletedPost) {
+    setUnpublishedPosts(unpublishedPosts.filter out deletedpost....);
+  }
+
+  function handleDeleteComment (deletedComment) {
+    setfetchedComments(fetchedComments.filter out deleted comment....);
+  }
+*/
 
   useEffect(() => {
     fetch('http://localhost:3000/api/comments')
@@ -47,7 +72,7 @@ function App() {
           title={post.title}
           text={post.text}
           updatedAt={post.updatedAt}
-          published={post.published}
+          published={true}
           comments={getPostComments(fetchedComments, post)}
           />)}
       </div>
@@ -61,6 +86,7 @@ function App() {
           title={post.title}
           text={post.text}
           updatedAt={post.updatedAt}
+          published={false}
           comments={getPostComments(fetchedComments, post)}
           />)}
       </div>

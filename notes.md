@@ -7,7 +7,6 @@
 4. The ability to manage comments (i.e. delete or edit them).
 
 
-
 Dan's Blog (Administrator)
 
 --PUBLISHED POSTS--
