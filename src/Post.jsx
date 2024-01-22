@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { DateTime } from "luxon";
 import Comment from './Comment';
 
-function Post({ postId, title, text, updatedAt, comments, published }) {
+function Post({ postid, post, title, text, updatedAt, comments, published, updatePublishtoUnpublishStatus, updateUnpublishtoPublishStatus, handleDeletePost, handleDeleteComment }) {
 
     function formatDate(date) {
         if (typeof date === "string") {
@@ -21,7 +21,7 @@ function Post({ postId, title, text, updatedAt, comments, published }) {
     }
 
     function onClickPublish() {
-        fetch(`http://localhost:3000/api/post/${postId}/update`, {
+        fetch(`http://localhost:3000/api/post/${postid}/update`, {
             method: "POST", 
             body: JSON.stringify({
                 title: title,
@@ -34,10 +34,11 @@ function Post({ postId, title, text, updatedAt, comments, published }) {
         }).then((res) => {
             return res.json();
         });
+        updateUnpublishtoPublishStatus(post);
     }
 
     function onClickUnpublish() {
-        fetch(`http://localhost:3000/api/post/${postId}/update`, {
+        fetch(`http://localhost:3000/api/post/${postid}/update`, {
             method: "POST", 
             body: JSON.stringify({
                 title: title,
@@ -50,7 +51,22 @@ function Post({ postId, title, text, updatedAt, comments, published }) {
         }).then((res) => {
             return res.json();
         });
-        document.getElementById("singlePost").classList.add("unpublished");
+        updatePublishtoUnpublishStatus(post);
+    }
+
+    function onClickDelete() {
+        fetch(`http://localhost:3000/api/post/${postid}/delete`, {
+            method: "POST", 
+            body: JSON.stringify({
+                postid: postid,
+            }),
+            headers: {
+                "Content-Type": "application/json;charset=utf-8",
+            },
+        }).then((res) => {
+            return res.json();
+        });
+        handleDeletePost(post);
     }
 
     return (
@@ -66,14 +82,18 @@ function Post({ postId, title, text, updatedAt, comments, published }) {
                 {comments.map((comment) =>
                     <Comment
                         key={comment._id}
+                        commentid={comment._id}
+                        comment={comment}
                         title={comment.title}
                         text={comment.text}
                         authorName={comment.authorName} 
                         updatedAt={comment.updatedAt}
+                        handleDeleteComment={handleDeleteComment}
                     />
                 )}
             </div>
             <PublishButton published={published}/>
+            <button onClick={onClickDelete}>Delete?</button>
         </div>
     )
 }
@@ -83,8 +103,13 @@ Post.propTypes = {
     text: PropTypes.string,
     updatedAt: PropTypes.string,
     comments: PropTypes.array,
-    postId: PropTypes.string,
+    postid: PropTypes.string,
     published: PropTypes.bool,
+    updatePublishtoUnpublishStatus: PropTypes.func,
+    updateUnpublishtoPublishStatus: PropTypes.func,
+    handleDeletePost: PropTypes.func,
+    handleDeleteComment: PropTypes.func,
+    post: PropTypes.object,
 }
 
 export default Post;

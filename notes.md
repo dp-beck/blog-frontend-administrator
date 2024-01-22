@@ -1,29 +1,23 @@
 # Notes
 
-3. A button to publish unpublished posts, or to unpublish published ones!
-
-3. A ‘NEW POST’ form. If you want to get fancy, you could use a rich text editor such as TinyMCE.
-
-4. The ability to manage comments (i.e. delete or edit them).
-
-
+Complete 
 Dan's Blog (Administrator)
 
---PUBLISHED POSTS--
-Title
-Text
-Button: Unpublish?
-Button: Delete?
+--PUBLISHED POSTS-- CHECK
+Title CHECK
+Text CHECK
+Button: Unpublish? CHECK
+Button: Delete? CHECK
 Comments
-    Comment , then Button: Delete?
+    Comment , then Button: Delete? CHECK
 
---UNPUBLISHED POSTS--
-Title
-Text
-Button: Publish?
-Button: Delete?
+--UNPUBLISHED POSTS-- CHECK
+Title CHECK
+Text CHECK
+Button: Publish? CHECK
+Button: Delete? CHECK
 Comments
-    Comment , then Button: Delete?
+    Comment , then Button: Delete? CHECK
 
 --CREATE NEW POST--
 Create New Post Form

@@ -5,8 +5,14 @@ import Post from './Post';
 function App() {
   const [publishedPosts, setPublishedPosts] = useState([]);
   const [unpublishedPosts, setUnpublishedPosts] = useState([]);
-  const [fetchedComments, setFetchedComments] = useState([]);
+  const [allComments, setAllComments] = useState([]);
+  const [newPost, setNewPost] = useState({
+    title: '',
+    text: '',
+    published: false,
+  });
 
+  // INITIAL CALLS TO DATABASE FOR POSTS AND COMMENTS
   useEffect(() => {
     fetch('http://localhost:3000/api/posts')
       .then((res) => {
@@ -19,39 +25,77 @@ function App() {
       });
   }, []);
 
-  /*
-  function handlePublishtoUnpublishChange (changedPost) {
-    setPublishedPosts(publishedPosts.filter out changedPost....);
-    setUnpublishedPosts([...unpublishedPosts, changedPost ]);
-  }
-
-  function handleUnpublishtoPublishChange (changedPost) {
-    setUnpublishedPosts(unpublishedPosts.filter out changed post....);
-    setpublishedPosts([...publishedPosts, changedPost ]);
-  }
-
-  function handleDeletepublishedPost (deletedPost) {
-    setPublishedPosts(publishedPosts.filter out deletedPost....);
-  }
-  
-  function handleDeleteunpublishedPost (deletedPost) {
-    setUnpublishedPosts(unpublishedPosts.filter out deletedpost....);
-  }
-
-  function handleDeleteComment (deletedComment) {
-    setfetchedComments(fetchedComments.filter out deleted comment....);
-  }
-*/
-
   useEffect(() => {
     fetch('http://localhost:3000/api/comments')
       .then((res) => {
         return res.json();
       })
       .then((data) => {
-        setFetchedComments(data);
+        setAllComments(data);
       });
   }, []);
+
+  // HANDLER FUNCTIONS FOR CHANGING PUBLICATION STATUS
+
+  function handlePublishtoUnpublishChange (changedPost) {
+    setPublishedPosts(publishedPosts.filter(post => post._id !== changedPost._id));
+    setUnpublishedPosts([...unpublishedPosts, changedPost ]);
+  }
+
+  function handleUnpublishtoPublishChange (changedPost) {
+    console.log(changedPost);
+    setUnpublishedPosts(unpublishedPosts.filter(post => post._id !== changedPost._id));
+    setPublishedPosts([...publishedPosts, changedPost ]);
+  }
+
+
+  // HANDLER FUNCTIONS FOR DELETING POSTS/COMMENTS
+
+  function handleDeletePost (deletedPost) {
+    if (deletedPost.published) {
+      setPublishedPosts(publishedPosts.filter(post => post._id !== deletedPost._id));
+    } else {
+      setUnpublishedPosts(unpublishedPosts.filter(post => post._id !== deletedPost._id));
+    }
+  }
+  
+  function handleDeleteComment (deletedComment) {
+    setAllComments(allComments.filter(comment => comment._id !== deletedComment._id));
+  }
+
+  // HANDLER FUNCTIONS FOR CREATING NEW POST
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setNewPost((prevProps) => ({
+        ...prevProps,
+        [name] : value
+    }));
+  };
+
+  const createNewPost = () => {
+    fetch('http://localhost:3000/api/post/create', {
+        method: "POST", 
+        body: JSON.stringify(newPost),
+        headers: {
+            "Content-Type": "application/json;charset=utf-8",
+        },
+    }).then((res) => {
+        return res.json();
+    })
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    createNewPost();
+    if (newPost.published) {
+      setPublishedPosts([...publishedPosts, newPost]);
+    } else {
+      setUnpublishedPosts([...unpublishedPosts, newPost])
+    }
+  };
+
+  // HANDLER FUNCTION FOR FILTERING COMMENTS PER POST
 
   function getPostComments(comments, post) {
     return comments.filter((comment) => comment.post[0] === post._id)
@@ -68,12 +112,16 @@ function App() {
         {publishedPosts.map((post) => 
         <Post 
           key={post._id} 
-          postId = {post._id}
+          post={post}
+          postid = {post._id}
           title={post.title}
           text={post.text}
           updatedAt={post.updatedAt}
           published={true}
-          comments={getPostComments(fetchedComments, post)}
+          comments={getPostComments(allComments, post)}
+          updatePublishtoUnpublishStatus={handlePublishtoUnpublishChange}
+          handleDeletePost={handleDeletePost}
+          handleDeleteComment={handleDeleteComment}
           />)}
       </div>
 
@@ -82,18 +130,42 @@ function App() {
         {unpublishedPosts.map((post) => 
         <Post 
           key={post._id} 
-          postId = {post._id}
+          post={post}
+          postid = {post._id}
           title={post.title}
           text={post.text}
           updatedAt={post.updatedAt}
           published={false}
-          comments={getPostComments(fetchedComments, post)}
+          comments={getPostComments(allComments, post)}
+          updateUnpublishtoPublishStatus={handleUnpublishtoPublishChange}
+          handleDeletePost={handleDeletePost}
+          handleDeleteComment={handleDeleteComment}
           />)}
       </div>
 
-        <footer>
-          <a href="https://www.freepik.com/free-vector/aged-paper-texture-background-design_14765966.htm#query=faded%20paper&position=0&from_view=keyword&track=ais&uuid=87dc82a0-ecc8-4576-abcf-2a22e659938d">Background Image by boggus</a> on Freepik
-        </footer>
+      <h2>Create New Post</h2>
+      <form onSubmit={handleSubmit} className='newPostForm'>
+
+        <div className='formTitleInput'> 
+          <label htmlFor="title">Title:</label> <br />
+          <input type="text" name="title" id="title" onChange={handleInputChange} required />
+        </div>
+
+        <div className='formTextInput'>
+          <label htmlFor="text">Post:</label> <br />
+          <textarea name="text" id="text" cols="50" rows="10" required onChange={handleInputChange}>Write your post here!</textarea>
+        </div>
+
+        <div className='formPublishInput'>
+          <label htmlFor="publish">Publish upon Creation?</label>
+          <input type="checkbox" name="publish" id="publish" value="true" />
+        </div>
+        <div>
+          <input type="submit" value="Submit" />
+        </div>
+
+      </form>
+
     </>
   )
 }
